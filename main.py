@@ -28,13 +28,8 @@ def get_jpg_data(arr, quality):
     collection = [['Original', 'Converted', 'Quality', 'Savings']]
     for image in arr:
         count += 1
-        # im = Image.open(image[0])
-        # info = im._getexif()
-        # if info is not None:
-        #     for tag, value in info.items():
-        difference = convert_size(os.stat(image[0]).st_size - os.stat(image[1] + ".webp").st_size)
+        difference = convert_size(os.stat(image[0]).st_size - os.stat(image[1]).st_size)
         image_data = [image[0], image[1], quality, difference]
-        # key = TAGS.get(tag, tag)
         collection.append(image_data)
     print('Files checked: ')
     print(count)
@@ -43,36 +38,39 @@ def get_jpg_data(arr, quality):
 
 # scan directory for any images of the specified type
 # https://www.tutorialspoint.com/python3/os_walk.htm
-def scan_directory(directory, image_type, quality):
+def scan_directory(directory, quality):
     arr = []
-    image_extension = '.' + image_type
     for root, dirs, files in os.walk(directory, topdown=False):
         for fileW in files:
-            if image_extension in fileW:
+            split_tup = os.path.splitext(fileW)
+            file_extension = split_tup[1].lower()
+
+            if file_extension == '.jpg' \
+                    or file_extension == '.jpeg' \
+                    or file_extension == '.png' \
+                    or file_extension == '.tiff':
                 raw_image = os.path.join(root, fileW)
-                converted_image = "D:/PycharmProjects/webpCommandProject/images/web/" + fileW
+                converted_image = raw_image + ".webp"
                 convert_image_to_webp(
                     raw_image,
                     converted_image,
                     quality
                 )
-
-                # arr.append(os.path.join(root, fileW))
                 arr.append([raw_image, converted_image])
     return arr
 
 
 def convert_image_to_webp(image, converted_image, quality):
-    call = "cwebp -q " + quality + " " + image + " -o " + converted_image + ".webp"
+    call = "cwebp -q " + quality + " " + image + " -o " + converted_image
     subprocess.run(call, shell=True, check=True, text=True)
 
 
 @app.command()
-def scan(filetype, directory, quality):
-    print('//-------------- Scanning ' + filetype + ' Files ------------------//')
-    images = scan_directory(directory, filetype, quality)
+def scan(directory, quality):
+    print('//-------------- Scanning For Images ------------------//')
+    images = scan_directory(directory, quality)
     image_list = get_jpg_data(images, quality)
-    results_file = './results/' + filetype + '-image_list.csv'
+    results_file = './results/image_list.csv'
 
     with open(results_file, 'w') as csvFile:
         writer = csv.writer(csvFile)
