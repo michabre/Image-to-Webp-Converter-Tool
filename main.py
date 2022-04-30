@@ -6,39 +6,26 @@ import subprocess
 import math
 import sys
 
-from PIL import Image
-from PIL.ExifTags import TAGS
-
 app = typer.Typer()
 
 
-# https://stackoverflow.com/questions/5194057/better-way-to-convert-file-sizes-in-python
-def convert_size(size_bytes):
-    if size_bytes == 0:
-        return "0B"
-    size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
-    i = int(math.floor(math.log(size_bytes, 1024)))
-    p = math.pow(1024, i)
-    s = round(size_bytes / p, 2)
-    return "%s %s" % (s, size_name[i])
-
-
-def get_jpg_data(arr, quality):
+def get_image_data(arr, quality):
     count = 0
-    collection = [['Original', 'Converted', 'Quality', 'Savings']]
+    collection = [['Original', 'Converted', 'Quality', 'Savings %']]
     for image in arr:
         count += 1
-        difference = convert_size(os.stat(image[0]).st_size - os.stat(image[1]).st_size)
-        image_data = [image[0], image[1], quality, difference]
+        difference = os.stat(image[0]).st_size - os.stat(image[1]).st_size
+        savings = (difference / os.stat(image[0]).st_size) * 100
+        total_savings = str(round(savings, 2))
+        image_data = [image[0], image[1], quality, total_savings]
         collection.append(image_data)
-    print('Files checked: ')
-    print(count)
+    print('{count} files have been converted'.format(count=count))
     return collection
 
 
 # scan directory for any images of the specified type
 # https://www.tutorialspoint.com/python3/os_walk.htm
-def scan_directory(directory, quality):
+def scan_directory_for_images(directory, quality):
     arr = []
     for root, dirs, files in os.walk(directory, topdown=False):
         for fileW in files:
@@ -66,16 +53,24 @@ def convert_image_to_webp(image, converted_image, quality):
 
 
 @app.command()
-def scan(directory, quality):
-    print('//-------------- Scanning For Images ------------------//')
-    images = scan_directory(directory, quality)
-    image_list = get_jpg_data(images, quality)
-    results_file = './results/image_list.csv'
+def convert(directory, quality):
+    print('//-------------- Converting Images ------------------//')
+    images = scan_directory_for_images(directory, quality)
+    image_list = get_image_data(images, quality)
+    results_file = './results/converted_image_list.csv'
 
     with open(results_file, 'w') as csvFile:
         writer = csv.writer(csvFile)
         writer.writerows(image_list)
     csvFile.close()
+
+# TODO: option to cleanup images no longer needed
+@app.command()
+def cleanup():
+    print('cleanup called')
+    # check if csv list exists
+    # remove all old images
+    # https://www.w3schools.com/python/python_file_remove.asp
 
 
 # Press the green button in the gutter to run the script.
