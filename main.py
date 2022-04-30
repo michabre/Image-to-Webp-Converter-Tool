@@ -69,13 +69,16 @@ def cleanup():
     with open('./results/converted_image_list.csv') as csvFile:
         reader = csv.reader(csvFile, delimiter=',')
         line_count = 0
+        deleted_files = 0
         for row in reader:
             if line_count > 0:
                 if os.path.exists(row[0]):
                     os.remove(row[0])
+                    deleted_files += 1
                 else:
                     print("Original image not found.")
             line_count += 1
+    print('{deleted} files have been deleted.'.format(deleted=deleted_files))
 
 
 # Press the green button in the gutter to run the script.
