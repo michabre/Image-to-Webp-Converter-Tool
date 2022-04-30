@@ -2,7 +2,7 @@
 
 <br />
 <div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
+  <a href="https://github.com/michabre/Image-to-Webp-Converter-Tool">
     <img src="./logo.png" alt="Logo" width="300" height="150">
   </a>
   <h3 align="center">Image to Webp Conversion Helper Tool</h3>
