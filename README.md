@@ -22,16 +22,39 @@ Without it, python will be unable to call the `cwebp` command from the CLI and c
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Using the **convert** command, it will walk through a specified directory and convert all applicable images to webp at the quality level specified.
+### Convert 
 
+The **convert** command will walk through a specified directory and convert all applicable images to webp at the quality level specified.
 
 ```sh
 # convert all applicable images 
-# in the images directory
+# in the supplied images directory
 #
 # python main.py convert [directory] [image quality]
 python main.py convert "./images/" 75
+```
 
+The directory can be the _images_ folder or it can be any directory locally accessible.
+
+```sh
+# convert all applicable images 
+# in a system directory with a lower quality set
+#
+python main.py convert "C://Users/bob/web_images/" 50
+```
+
+### Cleanup
+
+Once images have been converted, they are added to a CSV file in the _results_ directory (/results/converted_image_list.csv'). 
+
+The CSV file is overwritten every time the **convert** command is run.
+
+The **cleanup** command will look through the converted_image_list.csv and delete the original images and keep the webp ones.
+
+```sh
+# delete all the original images and keep the webp ones
+#
+python main.py cleanup
 ```
 
 

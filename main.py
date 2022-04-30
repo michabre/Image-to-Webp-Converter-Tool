@@ -3,8 +3,6 @@ import typer
 import csv
 import os
 import subprocess
-import math
-import sys
 
 app = typer.Typer()
 
@@ -59,18 +57,25 @@ def convert(directory, quality):
     image_list = get_image_data(images, quality)
     results_file = './results/converted_image_list.csv'
 
-    with open(results_file, 'w') as csvFile:
+    with open(results_file, 'w', newline='') as csvFile:
         writer = csv.writer(csvFile)
         writer.writerows(image_list)
     csvFile.close()
 
-# TODO: option to cleanup images no longer needed
+
 @app.command()
 def cleanup():
-    print('cleanup called')
-    # check if csv list exists
-    # remove all old images
-    # https://www.w3schools.com/python/python_file_remove.asp
+    print('//-------------- Starting Cleanup ------------------//')
+    with open('./results/converted_image_list.csv') as csvFile:
+        reader = csv.reader(csvFile, delimiter=',')
+        line_count = 0
+        for row in reader:
+            if line_count > 0:
+                if os.path.exists(row[0]):
+                    os.remove(row[0])
+                else:
+                    print("Original image not found.")
+            line_count += 1
 
 
 # Press the green button in the gutter to run the script.
